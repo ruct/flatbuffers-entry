@@ -4,16 +4,17 @@
 
 using std::cin, std::cout;
 
-void test1() {
+void RunTest1() {
     flatbuffers::FlatBufferBuilder builder;
 
-    const auto TITLE = "Anime #1", STUDIO = "Ghibli";
+    const auto TITLE = "Anime #1";
+    const auto STUDIO = "Ghibli";
 
     auto title = builder.CreateString(TITLE);
     auto studio = builder.CreateString(STUDIO);
 
-    auto anime1 = CreateAnime(builder, title, studio, 2020, Origin_Manga);
-    builder.Finish(anime1);
+    auto bufferedAnime = CreateAnime(builder, title, studio, 2020, Origin_Manga);
+    builder.Finish(bufferedAnime);
 
     auto anime = GetAnime(builder.GetBufferPointer());
     assert(anime->title()->str() == TITLE);
@@ -21,7 +22,7 @@ void test1() {
     assert(anime->year() == 2020);
 }
 
-void test2() {
+void RunTest2() {
     flatbuffers::FlatBufferBuilder builder;
 
     const auto STUDIO = "Perriot";
@@ -30,16 +31,16 @@ void test2() {
     auto studio = builder.CreateString(STUDIO);
     auto title = builder.CreateString(TITLE);
 
-    auto anime2 = CreateAnime(builder, title, studio, 2020);
-    builder.Finish(anime2);
+    auto bufferedAnime = CreateAnime(builder, title, studio, 2020);
+    builder.Finish(bufferedAnime);
 
+    // Saving buffered data
     std::ofstream outfile;
     outfile.open("anime.data", std::ios::binary | std::ios::out);
     outfile.write(reinterpret_cast<const char*>(builder.GetBufferPointer()), builder.GetSize());
     outfile.close();
 
-    //
-
+    // Loading data
     std::ifstream infile;
     infile.open("anime.data", std::ios::binary | std::ios::in);
     infile.seekg(0,std::ios::end);
@@ -53,6 +54,7 @@ void test2() {
     auto *ptr = reinterpret_cast<uint8_t*>(data);
     auto verifier = flatbuffers::Verifier(ptr, length);
 
+    // Checking if the loaded data is correct
     bool ok = VerifyAnimeBuffer(verifier);
     cout << "Valid buffer: " << std::boolalpha << ok << std::endl;
 
@@ -63,6 +65,6 @@ void test2() {
 }
 
 int main() {
-    test1();
-    test2();
+    RunTest1();
+    RunTest2();
 }
