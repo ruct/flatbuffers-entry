@@ -9,6 +9,7 @@ enum Origin : short {
 
 table Anime {
   title:string (required);
+  studio:string;
   year:short;
   origin:Origin = Other;
 }

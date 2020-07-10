@@ -55,11 +55,15 @@ struct Anime FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef AnimeBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TITLE = 4,
-    VT_YEAR = 6,
-    VT_ORIGIN = 8
+    VT_STUDIO = 6,
+    VT_YEAR = 8,
+    VT_ORIGIN = 10
   };
   const flatbuffers::String *title() const {
     return GetPointer<const flatbuffers::String *>(VT_TITLE);
+  }
+  const flatbuffers::String *studio() const {
+    return GetPointer<const flatbuffers::String *>(VT_STUDIO);
   }
   int16_t year() const {
     return GetField<int16_t>(VT_YEAR, 0);
@@ -71,6 +75,8 @@ struct Anime FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_TITLE) &&
            verifier.VerifyString(title()) &&
+           VerifyOffset(verifier, VT_STUDIO) &&
+           verifier.VerifyString(studio()) &&
            VerifyField<int16_t>(verifier, VT_YEAR) &&
            VerifyField<int16_t>(verifier, VT_ORIGIN) &&
            verifier.EndTable();
@@ -83,6 +89,9 @@ struct AnimeBuilder {
   flatbuffers::uoffset_t start_;
   void add_title(flatbuffers::Offset<flatbuffers::String> title) {
     fbb_.AddOffset(Anime::VT_TITLE, title);
+  }
+  void add_studio(flatbuffers::Offset<flatbuffers::String> studio) {
+    fbb_.AddOffset(Anime::VT_STUDIO, studio);
   }
   void add_year(int16_t year) {
     fbb_.AddElement<int16_t>(Anime::VT_YEAR, year, 0);
@@ -106,9 +115,11 @@ struct AnimeBuilder {
 inline flatbuffers::Offset<Anime> CreateAnime(
     flatbuffers::FlatBufferBuilder &_fbb,
     flatbuffers::Offset<flatbuffers::String> title = 0,
+    flatbuffers::Offset<flatbuffers::String> studio = 0,
     int16_t year = 0,
     Origin origin = Origin_Other) {
   AnimeBuilder builder_(_fbb);
+  builder_.add_studio(studio);
   builder_.add_title(title);
   builder_.add_origin(origin);
   builder_.add_year(year);
@@ -118,12 +129,15 @@ inline flatbuffers::Offset<Anime> CreateAnime(
 inline flatbuffers::Offset<Anime> CreateAnimeDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     const char *title = nullptr,
+    const char *studio = nullptr,
     int16_t year = 0,
     Origin origin = Origin_Other) {
   auto title__ = title ? _fbb.CreateString(title) : 0;
+  auto studio__ = studio ? _fbb.CreateString(studio) : 0;
   return CreateAnime(
       _fbb,
       title__,
+      studio__,
       year,
       origin);
 }
