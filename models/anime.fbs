@@ -1,0 +1,16 @@
+enum Origin : short {
+    Ranobe = 1,
+    Manga,
+    Manhva,
+    Manhua,
+    Game,
+    Other,
+}
+
+table Anime {
+  title:string (required);
+  year:short;
+  origin:Origin = Other;
+}
+
+root_type Anime;
